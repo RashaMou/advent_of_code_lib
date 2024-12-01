@@ -3,10 +3,12 @@ import json
 from datetime import datetime
 from lib.template_generator import TemplateGenerator
 from lib.input_manager import InputManager
+from lib.solution_runner import SolutionRunner
 from lib.config import config
 
 tg = TemplateGenerator()
 im = InputManager()
+runner = SolutionRunner()
 
 
 def get_current_year():
@@ -42,7 +44,13 @@ def debug(year, day):
 @click.option("--day", type=int, required=True, help="The day to run")
 def run(year, day):
     """Run solution for a specific day"""
-    pass
+    try:
+        part1, part2 = runner.run_solution(year, day)
+        print(f"Results for Year {year}, Day {day}:")
+        print(f"Part 1: {part1[0]} (Execution Time: {part1[1]:.4f}s)")
+        print(f"Part 1: {part2[0]} (Execution Time: {part2[1]:.4f}s)")
+    except Exception as e:
+        print(f"Error: {e}")
 
 
 @cli.command()
