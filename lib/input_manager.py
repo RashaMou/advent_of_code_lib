@@ -16,23 +16,74 @@ class InputManager:
 
         headers = {"Cookie": f"session={self.session_token}"}
 
-        response = requests.get(url, headers=headers)
-        response.raise_for_status()
+        try:
+            response = requests.get(url, headers=headers)
+            response.raise_for_status()
+        except requests.HTTPError as e:
+            if response.status_code == 401:
+                raise PermissionError(
+                    "Unauthorized: Check if your session token is valid."
+                ) from e
+            elif response.status_code == 404:
+                raise FileNotFoundError(
+                    f"Input not found for Year {year}, Day {day}."
+                ) from e
+            else:
+                raise ConnectionError(
+                    f"HTTP Error {response.status_code}: {response.reason}"
+                ) from e
+        except requests.RequestException as e:
+            raise ConnectionError(f"Failed to connect to Advent of Code: {e}") from e
 
-        with open(f"{self.base_path}/{year}/day{day}/input.txt", "w") as f:
-            f.write(response.text)
+        try:
+            file_path = f"{self.base_path}/{year}/day{day}/input.txt"
+            with open(file_path, "w") as f:
+                f.write(response.text)
+        except IOError as e:
+            raise IOError(f"Failed to write input to {file_path}") from e
 
     def get_test_input(self, year, day):
+        if not self.session_token:
+            raise ValueError("Session token is required")
+
         url = f"https://adventofcode.com/{year}/day/{day}"
         headers = {"Cookie": f"session={self.session_token}"}
 
-        response = requests.get(url, headers=headers)
-        if response.status_code != 200:
-            raise Exception(f"Failed to fetch input: {response.status_code}")
+        try:
+            response = requests.get(url, headers=headers)
+            response.raise_for_status()
+        except requests.HTTPError as e:
+            if response.status_code == 401:
+                raise PermissionError(
+                    "Unauthorized: Check if your session token is valid."
+                ) from e
+            elif response.status_code == 404:
+                raise FileNotFoundError(
+                    f"Input not found for Year {year}, Day {day}."
+                ) from e
+            else:
+                raise ConnectionError(
+                    f"HTTP Error {response.status_code}: {response.reason}"
+                ) from e
+        except requests.RequestException as e:
+            raise ConnectionError(f"Failed to connect to Advent of Code: {e}") from e
 
-        soup = BeautifulSoup(response.content, "html.parser")
+        try:
+            soup = BeautifulSoup(response.content, "html.parser")
+            test_input = soup.find("pre")
 
-        test_input = soup.find("pre").text.strip()
+            if not test_input:
+                raise ValueError("Test input not found in the HTML content.")
 
-        with open(f"{self.base_path}/{year}/day{day}/test_input.txt", "w") as f:
-            f.write(test_input)
+            test_input = test_input.text.strip()
+        except Exception as e:
+            raise ValueError(
+                f"Failed to parse the test input for Year {year}, Day {day}: {e}"
+            ) from e
+
+        try:
+            file_path = f"{self.base_path}/{year}/day{day}/test_input.txt"
+            with open(file_path, "w") as f:
+                f.write(test_input)
+        except IOError as e:
+            raise IOError(f"Failed to write input to {file_path}") from e

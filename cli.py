@@ -15,22 +15,19 @@ def get_current_year():
     return datetime.now().year
 
 
+def validate_input(year, day):
+    try:
+        if not (1 <= day <= 25):
+            raise ValueError(f"Invalid day: {day}. Day must be between 1 and 25.")
+        if len(str(year)) != 4 or not str(year).isdigit():
+            raise ValueError(f"Invalid year: {year}. Year must be a 4-digit number.")
+    except ValueError as e:
+        raise click.BadParameter(f"Validation failed: {e}")
+
+
 @click.group()
 def cli():
     """Advent of code cli tool"""
-    pass
-
-
-@cli.command()
-@click.option(
-    "--year",
-    type=int,
-    default=get_current_year,
-    help="The year to debug (defaults to current year)",
-)
-@click.option("--day", type=int, required=True, help="The day to debug")
-def debug(year, day):
-    """Debug the solution for a specific day"""
     pass
 
 
@@ -44,11 +41,16 @@ def debug(year, day):
 @click.option("--day", type=int, required=True, help="The day to run")
 def run(year, day):
     """Run solution for a specific day"""
+    validate_input(year, day)
     try:
         part1, part2 = runner.run_solution(year, day)
         print(f"Results for Year {year}, Day {day}:")
         print(f"Part 1: {part1[0]} (Execution Time: {part1[1]:.4f}s)")
         print(f"Part 1: {part2[0]} (Execution Time: {part2[1]:.4f}s)")
+    except FileNotFoundError as e:
+        click.echo(f"Error: {e}. Make sure you have initialized or fetched inputs.")
+    except PermissionError as e:
+        click.echo(f"Permission Error: {e}. Check directory permissions.")
     except Exception as e:
         print(f"Error: {e}")
 
@@ -63,7 +65,7 @@ def run(year, day):
 @click.option("--day", type=int, required=True, help="The day to test")
 def test(year, day):
     """Run test for a specific day"""
-    pass
+    click.echo("Not yet implemented")
 
 
 @cli.command()
@@ -75,7 +77,7 @@ def test(year, day):
 )
 def status(year):
     """Display the completion status for a specific year"""
-    pass
+    click.echo("Not yet implemented")
 
 
 @cli.command()
@@ -84,16 +86,23 @@ def status(year):
 def config_file(set_token, view):
     """Set or view config"""
     if set_token:
+        if not set_token.strip():
+            click.echo("Error: Session token cannot be empty")
+            return
+
         config["session_token"] = set_token
 
-        with open("config.json", "w") as f:
-            json.dump(config, f, indent=4)
+        try:
+            with open("config.json", "w") as f:
+                json.dump(config, f, indent=4)
 
-        click.echo("Session token updated successfully")
+            click.echo("Session token updated successfully")
+        except IOError as e:
+            click.echo(f"Error writing to config file: {e}")
 
     if view:
-        print(f"Session token: {config['session_token']}")
-        print(f"Base path: {config['base_path']}")
+        click.echo(f"Session token: {config.get('session_token', 'Not set')}")
+        click.echo(f"Base path: {config.get('base_path', 'Not set')}")
 
 
 @cli.command()
@@ -106,6 +115,7 @@ def config_file(set_token, view):
 @click.option("--day", type=int, required=True, help="The day to initialize")
 def init(year, day):
     """Initialize a new puzzle"""
+    validate_input(year, day)
     click.echo(f"Initializing day {day} for year {year}")
     tg.create_day_structure(year, day)
 
@@ -120,10 +130,23 @@ def init(year, day):
 @click.option("--day", type=int, required=True, help="The day to fetch")
 def fetch(year, day):
     """Fetch a day's puzzle input"""
-    click.echo(f"Fetching input for day {day} of year {year}")
-    im.get_input(year, day)
-    im.get_test_input(year, day)
+    validate_input(year, day)
+
+    try:
+        click.echo(f"Fetching input for day {day} of year {year}")
+        im.get_input(year, day)
+        im.get_test_input(year, day)
+        click.echo("Fetch successful")
+    except ValueError as e:
+        click.echo(f"Configuration Error: {e}. Check your session token or base path.")
+    except PermissionError as e:
+        click.echo(f"Permission Error: {e}. Check directory permissions.")
+    except Exception as e:
+        click.echo(f"Unexpected Error: {e}")
 
 
 if __name__ == "__main__":
-    cli()
+    try:
+        cli()
+    except Exception as e:
+        click.echo(f"Error: {e}", err=True)

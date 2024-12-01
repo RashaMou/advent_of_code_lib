@@ -14,12 +14,19 @@ class TemplateGenerator:
         Returns:
             str: The path to the created day directory.
         """
-        does_exist = self.check_existing_day(year, day)
-        if does_exist:
-            return f"Files exist for {year}-{day}"
-
         day_path = f"{self.base_path}/{year}/day{day}"
-        os.makedirs(day_path)
+
+        does_exist = self.check_existing_day(year, day)
+
+        if does_exist:
+            raise FileExistsError(
+                f"Files for Year {year}, Day {day} already exist at '{day_path}'."
+            )
+
+        try:
+            os.makedirs(day_path)
+        except OSError as e:
+            raise OSError(f"Failed to create directory '{day_path}': {e}")
 
         self.generate_files_for_day(day_path)
 
@@ -30,8 +37,11 @@ class TemplateGenerator:
         templates = self.load_templates()
 
         for key, value in templates.items():
-            with open(f"{path}/{key}", "w") as key:
-                key.write(value)
+            try:
+                with open(f"{path}/{key}", "w") as key:
+                    key.write(value)
+            except IOError as e:
+                raise IOError(f"Failed to write file to '{key}': {e}")
 
         with open(f"{path}/input.txt", "w"):
             pass
