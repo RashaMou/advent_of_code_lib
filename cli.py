@@ -1,8 +1,12 @@
 import click
+import json
 from datetime import datetime
 from lib.template_generator import TemplateGenerator
+from lib.input_manager import InputManager
+from lib.config import config
 
 tg = TemplateGenerator()
+im = InputManager()
 
 
 def get_current_year():
@@ -69,9 +73,19 @@ def status(year):
 @cli.command()
 @click.option("--set-token", type=str, help="Set the session token from AOC")
 @click.option("--view", is_flag=True, help="View config settings")
-def config(set_token, view):
+def config_file(set_token, view):
     """Set or view config"""
-    pass
+    if set_token:
+        config["session_token"] = set_token
+
+        with open("config.json", "w") as f:
+            json.dump(config, f, indent=4)
+
+        click.echo("Session token updated successfully")
+
+    if view:
+        print(f"Session token: {config['session_token']}")
+        print(f"Base path: {config['base_path']}")
 
 
 @cli.command()
@@ -99,6 +113,8 @@ def init(year, day):
 def fetch(year, day):
     """Fetch a day's puzzle input"""
     click.echo(f"Fetching input for day {day} of year {year}")
+    im.get_input(year, day)
+    im.get_test_input(year, day)
 
 
 if __name__ == "__main__":
