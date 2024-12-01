@@ -7,9 +7,13 @@ def solve_part2(input_data):
     pass
 
 if __name__ == "__main__":
-    with open("input.txt", "r") as file:
-        input_data = file.read()
-    
+    try:
+        with open("input.txt", "r") as file:
+            input_data = file.read().strip()
+    except FileNotFoundError:
+        print("Error: input.txt not found.")
+        exit(1)
+
     print("Part 1:", solve_part1(input_data))
     print("Part 2:", solve_part2(input_data))
 """
