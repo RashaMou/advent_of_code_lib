@@ -1,24 +1,14 @@
-import json
 import requests
+from bs4 import BeautifulSoup
+from lib.config import config
 
 
 class InputManager:
-    def __init__(self, config_path: str = "config.json"):
-        self.config = config_path
-        self.session_token = ""
-        self.base_path = ""
-
-    def load_config(self, config) -> None:
-        with open(self.config, "r", encoding="utf-8") as f:
-            data = json.load(f)
-            self.session_token = data["session_token"]
-            self.solutions_path = data["solutions_path"]
+    def __init__(self):
+        self.session_token = config["session_token"]
+        self.base_path = config["base_path"]
 
     def get_input(self, year, day) -> None:
-        with open(self.config, "r", encoding="utf-8") as f:
-            data = json.load(f)
-            self.session_token = data["session_token"]
-
         if not self.session_token:
             raise ValueError("Session token is required")
 
@@ -32,5 +22,17 @@ class InputManager:
         with open(f"{self.base_path}/{year}/day{day}/input.txt", "w") as f:
             f.write(response.text)
 
-    def get_test_input(self):
-        pass
+    def get_test_input(self, year, day):
+        url = f"https://adventofcode.com/{year}/day/{day}"
+        headers = {"Cookie": f"session={self.session_token}"}
+
+        response = requests.get(url, headers=headers)
+        if response.status_code != 200:
+            raise Exception(f"Failed to fetch input: {response.status_code}")
+
+        soup = BeautifulSoup(response.content, "html.parser")
+
+        test_input = soup.find("pre").text.strip()
+
+        with open(f"{self.base_path}/{year}/day{day}/test_input.txt", "w") as f:
+            f.write(test_input)
