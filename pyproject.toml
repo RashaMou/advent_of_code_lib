@@ -9,6 +9,8 @@ packages = [{ include = "lib" }]
 [tool.poetry.dependencies]
 python = "^3.12"
 click = "^8.1.7"
+bs4 = "^0.0.2"
+requests = "^2.32.3"
 
 
 [build-system]
