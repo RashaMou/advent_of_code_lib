@@ -39,3 +39,22 @@ def read_input(year: int, day: int, test: bool = False) -> str:
 
     with open(input_path, "r") as file:
         return file.read().strip()
+
+
+def parse_pairs(data):
+    """
+    Parse space-separated pairs of numbers into list of tuples.
+
+    Args:
+        data (str): Multiline string with space-separated numbers
+
+    Returns:
+        list[tuple[int, int]]: List of number pairs as tuples
+    """
+    pairs = []
+
+    for line in data.strip().split("\n"):
+        x, y = map(int, line.split())
+        pairs.append((x, y))
+
+    return pairs
