@@ -1,14 +1,11 @@
 import os
 from lib.templates import SOLUTION_TEMPLATE, TEST_TEMPLATE
-from lib.utils import Utilities
-
-utils = Utilities()
+from lib.config import config
 
 
 class TemplateGenerator:
     def __init__(self):
-        self.config = utils.load_config()
-        self.base_path = self.config["base_path"]
+        self.base_path = config["base_path"]
 
     def create_day_structure(self, year: int, day: int) -> str:
         """
