@@ -14,7 +14,7 @@ class TemplateGenerator:
         Returns:
             str: The path to the created day directory.
         """
-        day_path = f"{self.base_path}/{year}/day{day}"
+        day_path = self.generate_day_path(year, day)
 
         does_exist = self.check_existing_day(year, day)
 
@@ -28,20 +28,28 @@ class TemplateGenerator:
         except OSError as e:
             raise OSError(f"Failed to create directory '{day_path}': {e}")
 
-        self.generate_files_for_day(day_path)
+        self.generate_files_for_day(year, day)
 
-    def generate_files_for_day(self, path: str) -> None:
+    def generate_day_path(self, year, day):
+        return f"{self.base_path}/{year}/day{day}"
+
+    def generate_files_for_day(self, year: int, day: int) -> None:
         """
         Generate all necessary files for a specific day using templates.
         """
         templates = self.load_templates()
+        path = self.generate_day_path(year, day)
 
-        for key, value in templates.items():
+        for file_name, template_content in templates.items():
             try:
-                with open(f"{path}/{key}", "w") as key:
-                    key.write(value)
+                with open(f"{path}/{file_name}", "w") as file:
+                    if file_name == "test_solution.py":
+                        file.write(template_content.format(year=year, day=day))
+                    else:
+                        file.write(template_content)
+
             except IOError as e:
-                raise IOError(f"Failed to write file to '{key}': {e}")
+                raise IOError(f"Failed to write file to '{file_name}' to '{path}': {e}")
 
         with open(f"{path}/input.txt", "w"):
             pass

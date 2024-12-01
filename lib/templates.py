@@ -18,17 +18,16 @@ if __name__ == "__main__":
     print("Part 2:", solve_part2(input_data))
 """
 
-TEST_TEMPLATE = '''import pytest
-from solution import solve_part1, solve_part2
+TEST_TEMPLATE = """from lib.utils import load_solution, read_input
 
-# Example input and expected outputs
-EXAMPLE_INPUT = """<INSERT EXAMPLE INPUT>"""
-EXPECTED_OUTPUT_PART1 = <INSERT EXPECTED OUTPUT FOR PART 1>
-EXPECTED_OUTPUT_PART2 = <INSERT EXPECTED OUTPUT FOR PART 2>
+EXAMPLE_INPUT = read_input({year}, {day}, test=True) 
+EXPECTED_OUTPUT_PART1 = ""
+EXPECTED_OUTPUT_PART2 = ""
+module = load_solution({year}, {day})
 
 def test_solve_part1():
-    assert solve_part1(EXAMPLE_INPUT) == EXPECTED_OUTPUT_PART1
+    assert module.solve_part1(EXAMPLE_INPUT) == EXPECTED_OUTPUT_PART1
 
 def test_solve_part2():
-    assert solve_part2(EXAMPLE_INPUT) == EXPECTED_OUTPUT_PART2
-'''
+    assert module.solve_part2(EXAMPLE_INPUT) == EXPECTED_OUTPUT_PART2
+"""

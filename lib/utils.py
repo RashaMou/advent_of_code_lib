@@ -26,11 +26,14 @@ def load_solution(year: int, day: int):
     return module
 
 
-def read_input(year: int, day: int) -> str:
+def read_input(year: int, day: int, test: bool = False) -> str:
     """
     Read the input file for a specific year and day.
     """
-    input_path = f"solutions/{year}/day{day:02d}/input.txt"
+    if test:
+        input_path = f"solutions/{year}/day{day}/test_input.txt"
+    else:
+        input_path = f"solutions/{year}/day{day}/input.txt"
     if not os.path.exists(input_path):
         raise FileNotFoundError(f"Input file not found: {input_path}")
 
