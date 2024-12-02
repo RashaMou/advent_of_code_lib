@@ -7,6 +7,7 @@ from lib.template_generator import TemplateGenerator
 from lib.input_manager import InputManager
 from lib.solution_runner import SolutionRunner
 from lib.config import config
+from lib.utils import get_status
 
 tg = TemplateGenerator()
 im = InputManager()
@@ -100,7 +101,7 @@ def test(year, day, part):
 )
 def status(year):
     """Display the completion status for a specific year"""
-    click.echo("Not yet implemented")
+    get_status(year)
 
 
 @cli.command()

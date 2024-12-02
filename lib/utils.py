@@ -1,5 +1,8 @@
 import os
 import importlib
+from bs4 import BeautifulSoup
+import requests
+from lib.config import config
 
 
 def load_solution(year: int, day: int):
@@ -58,3 +61,47 @@ def parse_pairs(data):
         pairs.append((x, y))
 
     return pairs
+
+
+def get_status(year):
+    if not config["session_token"]:
+        raise ValueError("Session token is required")
+
+    url = f"https://adventofcode.com/{year}"
+    headers = {"Cookie": f"session={config["session_token"]}"}
+
+    try:
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+    except requests.HTTPError as e:
+        if response.status_code == 401:
+            raise PermissionError(
+                "Unauthorized: Check if your session token is valid."
+            ) from e
+        elif response.status_code == 404:
+            raise FileNotFoundError(f"Input not found for Year {year}.") from e
+        else:
+            raise ConnectionError(
+                f"HTTP Error {response.status_code}: {response.reason}"
+            ) from e
+    except requests.RequestException as e:
+        raise ConnectionError(f"Failed to connect to Advent of Code: {e}") from e
+
+    try:
+        soup = BeautifulSoup(response.content, "html.parser")
+        calendar = soup.find("pre", class_="calendar")
+
+        if not calendar:
+            raise ValueError("Calendar not found in the HTML content.")
+
+        days = calendar.find_all("a")
+
+        for i, day in enumerate(days):
+            if "calendar-verycomplete" in day.get("class", []):
+                print(f"Day {i + 1}: 🤩 🤩")
+            elif "calendar-complete" in day.get("class", []):
+                print(f"Day {i + 1}: 🤩")
+            else:
+                print(f"Day {i + 1}: 💩")
+    except Exception as e:
+        raise Exception(f"Error parsing HTML: {e}")
