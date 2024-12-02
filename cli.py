@@ -1,4 +1,6 @@
+from typing import Required
 import click
+import pytest
 import json
 from datetime import datetime
 from lib.template_generator import TemplateGenerator
@@ -46,7 +48,7 @@ def run(year, day):
         part1, part2 = runner.run_solution(year, day)
         print(f"Results for Year {year}, Day {day}:")
         print(f"Part 1: {part1[0]} (Execution Time: {part1[1]:.4f}s)")
-        print(f"Part 1: {part2[0]} (Execution Time: {part2[1]:.4f}s)")
+        print(f"Part 2: {part2[0]} (Execution Time: {part2[1]:.4f}s)")
     except FileNotFoundError as e:
         click.echo(f"Error: {e}. Make sure you have initialized or fetched inputs.")
     except PermissionError as e:
@@ -63,9 +65,30 @@ def run(year, day):
     help="The year to test (defaults to current year)",
 )
 @click.option("--day", type=int, required=True, help="The day to test")
-def test(year, day):
+@click.option(
+    "--part", type=int, required=False, help="Specify the part to test: 1 or 2"
+)
+def test(year, day, part):
     """Run test for a specific day"""
-    click.echo("Not yet implemented")
+    try:
+        pytest_args = [
+            f"solutions/{year}/day{day}/test_solution.py",
+            "-v",
+        ]
+
+        if part == 1:
+            pytest_args.extend(["-k", "test_solve_part1"])
+        elif part == 2:
+            pytest_args.extend(["-k", "test_solve_part2"])
+
+        result = pytest.main(pytest_args)
+
+        if result == 0:
+            click.echo(f"All tests passed for Year {year}, Day {day}.")
+        else:
+            click.echo(f"Some tests failed for Year {year}, Day {day}.")
+    except Exception as e:
+        click.echo(f"Error while running tests: {e}")
 
 
 @cli.command()
