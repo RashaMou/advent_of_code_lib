@@ -1,8 +1,7 @@
 from typing import Any, Tuple
-from datetime import time
+import time
 from lib.utils import load_solution
 from lib.utils import read_input
-import os
 
 
 class SolutionRunner:
