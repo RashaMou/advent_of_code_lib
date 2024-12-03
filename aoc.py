@@ -1,4 +1,5 @@
-from typing import Required
+#!/usr/bin/env python3
+
 import click
 import pytest
 import json
