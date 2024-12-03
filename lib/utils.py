@@ -3,6 +3,7 @@ import importlib
 from bs4 import BeautifulSoup
 import requests
 from lib.config import config
+from typing import Tuple, Any
 
 
 def load_solution(year: int, day: int):
@@ -44,7 +45,18 @@ def read_input(year: int, day: int, test: bool = False) -> str:
         return file.read().strip()
 
 
-def parse_pairs(data):
+def parse_arrays(data) -> []:
+    """
+    Parse space separated rows of numbers into a list of arrays
+    """
+    arr = []
+    for line in data.strip().split("\n"):
+        arr.append(line.split(" "))
+
+    return arr
+
+
+def parse_pairs(data) -> Tuple[Any, Any]:
     """
     Parse space-separated pairs of numbers into list of tuples.
 
@@ -63,7 +75,7 @@ def parse_pairs(data):
     return pairs
 
 
-def get_status(year):
+def get_status(year) -> None:
     if not config["session_token"]:
         raise ValueError("Session token is required")
 
