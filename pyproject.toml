@@ -12,6 +12,7 @@ click = "^8.1.7"
 bs4 = "^0.0.2"
 requests = "^2.32.3"
 pytest = "^8.3.4"
+rich = "^13.9.4"
 
 
 [build-system]

@@ -4,6 +4,8 @@ from bs4 import BeautifulSoup
 import requests
 from lib.config import config
 from typing import Tuple, Any
+from rich.console import Console
+from rich.table import Table
 
 
 def load_solution(year: int, day: int):
@@ -108,12 +110,24 @@ def get_status(year) -> None:
 
         days = calendar.find_all("a")
 
+        print(" ")
+        table = Table(
+            title=f"[bold magenta]Advent of Code {year}[/bold magenta]",
+            min_width=50,
+        )
+        table.add_column("Day", justify="left", style="cyan")
+        table.add_column("Score", style="magenta")
+
         for i, day in enumerate(days):
             if "calendar-verycomplete" in day.get("class", []):
-                print(f"Day {i + 1}: 🤩 🤩")
+                table.add_row(f"{i + 1}", "🤩 🤩")
             elif "calendar-complete" in day.get("class", []):
-                print(f"Day {i + 1}: 🤩")
+                table.add_row(f"{i + 1}", "🤩")
             else:
-                print(f"Day {i + 1}: 💩")
+                table.add_row(f"{i + 1}:", "💩")
+
+        console = Console()
+        console.print(table)
+        print(" ")
     except Exception as e:
         raise Exception(f"Error parsing HTML: {e}")
