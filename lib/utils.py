@@ -124,7 +124,7 @@ def get_status(year) -> None:
             elif "calendar-complete" in day.get("class", []):
                 table.add_row(f"{i + 1}", "🤩")
             else:
-                table.add_row(f"{i + 1}:", "💩")
+                table.add_row(f"{i + 1}", "💩")
 
         console = Console()
         console.print(table)
